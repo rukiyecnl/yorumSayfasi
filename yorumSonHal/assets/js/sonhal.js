@@ -72,6 +72,23 @@ const data = {
 
 const commentsContainer = document.querySelector(".comments");
 
+if (!localStorage.getItem("comments")) {
+    localStorage.setItem("comments", JSON.stringify(data.comments));  
+}
+
+function localStorageExists(){
+    if (localStorage.getItem("comments")) {
+        data.comments = JSON.parse(localStorage.getItem("comments"));
+    }
+    return data.comments;
+}
+
+function saveToLocalStorage(object){{
+    const comments = localStorageExists();
+    comments.push(object);
+    localStorage.setItem("comments", JSON.stringify(comments));
+}}
+
 function createCommentItem(comment){
     const { id, content, createdAt, score, user } = comment;
     return `
@@ -92,14 +109,15 @@ function createCommentItem(comment){
                 <div class="profile-info">
                     <img src="https://picsum.photos/id/${user.id}/40/40" alt="">
                     <strong>${user.username}</strong>
+                    <span>${comment.user.id === data.currentUser.id ? `<span class="youIcon">you</span>` : ``}</span>
                     <span>${createdAt}</span>
                 </div>
                 ${comment.user.id === data.currentUser.id 
-                    ? `<div><a class="delete-btn" href="#" data-commentid="${id}">
-                            Sil
+                    ? `<div class="edit-delete"><a class="delete-btn" href="#" data-commentid="${id}">
+                            <img src="assets/img/trash.png" alt="edit"> Sil
                         </a>
                         <a class="edit-btn" href="#" data-commentid="${id}">
-                            Düzenle
+                            <img src="assets/img/edit.png" alt="edit">Düzenle
                         </a></div>` 
                     : `<a class="reply-btn" href="#" data-commentid="${id}">
                         Cevap Yaz
@@ -113,6 +131,8 @@ function createCommentItem(comment){
             </div>
         </div>
     </div>
+
+
     <div class="cevapdiv" style="display:none;"> 
         <div class="line"></div>
         <div class = "formDiv">
@@ -128,7 +148,8 @@ function createCommentItem(comment){
 
 function createUniqueId(){
     let id = 1;
-    for (const comment of data.comments) {
+    const comments = localStorageExists();
+    for (const comment of comments) {
         if(comment.id === id){
             id += 1;
         }
@@ -137,6 +158,7 @@ function createUniqueId(){
 }
 let toDeleteComment = null;
 const dialog = document.querySelector('dialog');
+
 function deleteComment(e){
     e.preventDefault();
     const commentId = parseInt(this.dataset.commentid);
@@ -151,6 +173,8 @@ function deleteCommentFunc(e){
     const commentIndex = data.comments.indexOf(toDeleteComment);
     if(e.target.id === "delete"){
         data.comments.splice(commentIndex, 1);
+        console.log(data.comments);
+        localStorage.setItem("comments", JSON.stringify(data.comments));
         renderComments();
     }
     dialog.close();
@@ -176,13 +200,22 @@ function handleNewCommentForm(e){
     e.preventDefault();
     const formData = new FormData(e.target);
     const formObj = Object.fromEntries(formData);
-    formObj.id = createUniqueId();
-    formObj.createdAt = "now";
-    formObj.score = 0;
-    formObj.replies = [];
-    formObj.user = data.currentUser;
+    // formObj.id = createUniqueId();
+    // formObj.createdAt = "now";
+    // formObj.score = 0;
+    // formObj.replies = [];
+    // formObj.user = data.currentUser;
 
-    data.comments.push(formObj);
+    const commentObject = {
+        id: createUniqueId(),
+        content: formObj.content,
+        createdAt: "now",
+        score: 0,
+        user: data.currentUser,
+        replies: []
+    }
+
+    saveToLocalStorage(commentObject);
 
     renderComments();
 
@@ -198,6 +231,7 @@ function updateComment(e){
     editedComment.content = newComment;
     console.log(editedComment);
     console.log(data.comments);
+    localStorage.setItem("comments", JSON.stringify(data.comments));
     renderComments();
 }
 
@@ -287,11 +321,15 @@ function rateCommentDown(e){
 }
 
 
+
 function renderComments(){
     commentsContainer.innerHTML = "";
-    for (const comment of data.comments) {
+    const comments = localStorageExists();
+
+    for (const comment of comments) {
         commentsContainer.innerHTML += createCommentItem(comment);
     }
+
     bindEvents();
 }
 

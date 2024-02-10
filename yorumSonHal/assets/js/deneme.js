@@ -423,3 +423,21 @@ function init(){
 
 
 init();
+
+
+if (!localStorage.getItem("comments")) {
+    localStorage.setItem("comments", JSON.stringify(data.comments));
+}
+
+function localStorageExists(){
+    if (localStorage.getItem("comments")) {
+        data.comments = JSON.parse(localStorage.getItem("comments"));
+    }
+    return data.comments;
+}
+
+function saveToLocalStorage(object){{
+    const comments = localStorageExists();
+    comments.push(object);
+    localStorage.setItem("comments", JSON.stringify(comments));
+}}

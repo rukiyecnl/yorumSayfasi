@@ -266,21 +266,19 @@ let data = {
 }
 
 const commentsContainer = document.querySelector(".comments");
-let  commentLocalStorage;
+
 if(localStorage.commentLocalStorage){
-  commentLocalStorage = JSON.parse(localStorage.commentLocalStorage)
+  data.comments = JSON.parse(localStorage.getItem("commentLocalStorage"));
 }
 else {
-  commentLocalStorage = [];
+  data.comments = [];
 }
-console.log(commentLocalStorage);
 
 
 function createCommentItem(comment){
   const { id, content, createdAt, score, user } = comment;
   // commentLocalStorage = [];
-  commentLocalStorage.push(comment);
-  localStorage.commentLocalStorage = JSON.stringify(commentLocalStorage);
+  //data.comments.push(localStorage.setItem("commentLocalStorage",JSON.stringify(data.comments)));
   
   return `
   
@@ -326,8 +324,7 @@ function handleNewCommentForm(e){
   formObj.id = createUniqueId();
 
   data.comments.push(formObj);
-  commentLocalStorage.push(formObj);
-  localStorage.commentLocalStorage = JSON.stringify(commentLocalStorage);
+  localStorage.setItem("commentLocalStorage", JSON.stringify(data.comments));
   renderComments();
 
   e.target.reset();
@@ -414,7 +411,7 @@ function rateCommentDown(e){
 
 
 function renderComments(){
-  // commentLocalStorage = [];
+  
   commentsContainer.innerHTML = "";
   for (const comment of data.comments) {
       commentsContainer.innerHTML += createCommentItem(comment);

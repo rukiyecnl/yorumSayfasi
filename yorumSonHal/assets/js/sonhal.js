@@ -111,6 +111,7 @@ function createCommentItem(comment){
                     <strong>${user.username}</strong>
                     <span>${comment.user.id === data.currentUser.id ? `<span class="youIcon">you</span>` : ``}</span>
                     <span>${createdAt}</span>
+                    ${comment.user.id === data.currentUser.id ? `<span class="duzenlendi" style="display:none;">düzenlendi</span>` : ``}
                 </div>
                 ${comment.user.id === data.currentUser.id 
                     ? `<div class="edit-delete"><a class="delete-btn" href="#" data-commentid="${id}">
@@ -227,8 +228,14 @@ function updateComment(e){
     e.preventDefault();
     const commentId = parseInt(e.target.dataset.commentid)
     const editedComment = data.comments.find(comment => comment.id === commentId);
-    const newComment = e.target.previousElementSibling.value
+    const newComment = e.target.previousElementSibling.value;
+
+    const duzenlendi = document.querySelector(".duzenlendi");
+    console.log(duzenlendi);
+    duzenlendi.style.display = "block";
+
     editedComment.content = newComment;
+
     console.log(editedComment);
     console.log(data.comments);
     localStorage.setItem("comments", JSON.stringify(data.comments));
